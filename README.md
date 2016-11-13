@@ -1,10 +1,12 @@
 # orange-virtual-machine
-Oange Virtual Machine is a java virtual machine written in java.
+Orange Virtual Machine is a Java virtual machine written in Java.
 
-*In progress*
+__*Work in progress*__
 
-**TO DO**
--> Write a make file
+### TO DO:
 
-**dependencies:**
--> javassist
++ Write a make file
+
+### Dependencies:
+
++ Javassist

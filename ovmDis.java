@@ -24,18 +24,24 @@ import javassist.bytecode.*;
 import javassist.*;
 
 class ovmDis{
-    public static void main(String[] args) throws IOException, BadBytecode{
+    public static void main(String[] args) throws Throwable{
 	String fname = args[0];
 	BufferedInputStream fin =
 	    new BufferedInputStream(new FileInputStream(fname));
-	ClassFile cf = new ClassFile(new DataInputStream(fin));
+
+	ClassFile cf = new ClassFile(new DataInputStream(fin));	
 	MethodInfo minfo = cf.getMethod("main");
 	CodeAttribute ca = minfo.getCodeAttribute();
+
 	CodeIterator i = ca.iterator();
 	while(i.hasNext()){
 	    int index = i.next();
 	    int op = i.byteAt(index);
-	    System.out.println(Mnemonic.OPCODE[op]);
+	    String cod = Mnemonic.OPCODE[op];
+	    System.out.println(cod);
+	    if(cod == "sipush"){
+		System.out.println(i.s16bitAt(index+1));
+	    }
 	}
 	fin.close();
     }
