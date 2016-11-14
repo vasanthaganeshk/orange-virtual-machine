@@ -23,6 +23,7 @@ import java.util.*;
 import java.io.*;
 import javassist.bytecode.*;
 import javassist.*;
+import org.javatuples.*;
 
 class IllegalClassFile extends Exception{
   public IllegalClassFile(String message){
@@ -30,14 +31,15 @@ class IllegalClassFile extends Exception{
   }
 }
 
+
 class ovm{
     // static Stack callStack = new Stack();
-    static Stack<Integer> dataStack = new Stack();
-    static Stack<Integer> blockStack = new Stack();
-    static int globalVar_0 = 0;
-    static int globalVar_1 = 0;
-    static int globalVar_2 = 0;
-    static int globalVar_3 = 0;
+    static Stack<Integer> dataStack = new Stack<Integer>();
+    static Stack<Integer> blockStack = new Stack<Integer>();
+    static Integer globalVar_0 = 0;
+    static Integer globalVar_1 = 0;
+    static Integer globalVar_2 = 0;
+    static Integer globalVar_3 = 0;
     
     public static void runMethod(CodeIterator i, ConstPool cpl) throws Throwable {
 	while(i.hasNext()){
@@ -61,8 +63,8 @@ class ovm{
 		globalVar_3 = dataStack.pop();
 	    }
 	    else if(cod == "getstatic"){
-		int ref = cpl.getFieldrefClass(i.s16bitAt(index+1));
-		
+		int ref = cpl.getFieldrefClass(i.s16bitAt(index+1));		
+		dataStack.push(ref);
 	    }
 	    else if(cod == "iload_0"){
 		dataStack.push(globalVar_0);
