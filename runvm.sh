@@ -1,2 +1,2 @@
 #!/bin/bash
-java -cp /usr/share/java/javassist.jar:. ovmDis hello_world.class
+java -cp /usr/share/java/javassist.jar:. ovm hello_world.class

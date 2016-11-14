@@ -1,11 +1,10 @@
-
 JCC = javac
 HEADER = -cp /usr/share/java/javassist.jar:. -Xlint
 
-default: hello_world.class ovmDis.class
-	$(JCC) $(HEADER) ovmDis.java
-ovmDis.class: ovmDis.java
-	$(JCC) $(HEADER) ovmDis.java
+default: ovm.class
+	$(JCC) $(HEADER) ovm.java
+ovm.class: ovm.java
+	$(JCC) $(HEADER) ovm.java
 
 clean:
 	rm *.class

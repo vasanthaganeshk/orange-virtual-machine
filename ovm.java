@@ -1,5 +1,5 @@
 /*
-Java disassembler for Java.
+Virtual machine for Java.
 Copyright (C) 2016 Vasantha Ganesh K. <vasanthaganesh.k@tuta.io>.
 
 This file is part of orange-virtual-machine.
@@ -30,35 +30,57 @@ class IllegalClassFile extends Exception{
   }
 }
 
-class ovmDis{
+class ovm{
+    // static Stack callStack = new Stack();
+    static Stack<Integer> dataStack = new Stack();
+    static Stack<Integer> blockStack = new Stack();
+    static int globalVar_0 = 0;
+    static int globalVar_1 = 0;
+    static int globalVar_2 = 0;
+    static int globalVar_3 = 0;
+    
     public static void runMethod(CodeIterator i, ConstPool cpl) throws Throwable {
 	while(i.hasNext()){
 	    int index = i.next();
 	    int op = i.byteAt(index);
 	    String cod = Mnemonic.OPCODE[op];
+
 	    if(cod == "sipush"){
-		System.out.println(cod + " " + i.s16bitAt(index+1));
+		dataStack.push(i.s16bitAt(index+1));
+	    }
+	    else if(cod == "istore_0"){
+		globalVar_0 = dataStack.pop();
 	    }
 	    else if(cod == "istore_1"){
-		System.out.println(cod);
+		globalVar_1 = dataStack.pop();
 	    }
 	    else if(cod == "istore_2"){
-		System.out.println(cod);
-	    }	    
+		globalVar_2 = dataStack.pop();
+	    }
+	    else if(cod == "istore_3"){
+		globalVar_3 = dataStack.pop();
+	    }
 	    else if(cod == "getstatic"){
-		System.out.println(cod + " " + ((i.byteAt(index+1)<<8) + i.byteAt(index+2)));
+		int ref = cpl.getFieldrefClass(i.s16bitAt(index+1));
+		
+	    }
+	    else if(cod == "iload_0"){
+		dataStack.push(globalVar_0);
 	    }
 	    else if(cod == "iload_1"){
-		System.out.println(cod);
+		dataStack.push(globalVar_1);
 	    }
 	    else if(cod == "iload_2"){
-		System.out.println(cod);
+		dataStack.push(globalVar_2);
+	    }
+	    else if(cod == "iload_3"){
+		dataStack.push(globalVar_3);
 	    }
 	    else if(cod == "iadd"){
-		System.out.println(cod);
+		dataStack.push(dataStack.pop() + dataStack.pop());
 	    }
 	    else if(cod == "invokevirtual"){
-		System.out.println(cod + " " + ((i.byteAt(index+1)<<8) + i.byteAt(index+2)));
+		System.out.println(cod + " " + i.s16bitAt(index+1));
 	    }
 	    else if(cod == "return"){
 		System.out.println(cod);
@@ -68,6 +90,7 @@ class ovmDis{
 	    }
 	}
     }
+    
     public static void main(String[] args) throws Throwable{
 	String fname = args[0];
 	BufferedInputStream fin = new BufferedInputStream(new FileInputStream(fname));
