@@ -1,6 +1,7 @@
 /*
 Virtual machine for Java.
-Copyright (C) 2016 Vasantha Ganesh K. <vasanthaganesh.k@tuta.io>.
+Copyright (C) 2016 Vasantha Ganesh K. <vasanthaganesh.k@tuta.io>,
+Sarath Das K.V. <sarathdaskv96@gmail.com>
 
 This file is part of orange-virtual-machine.
 
@@ -41,7 +42,7 @@ class ovm{
     static Integer globalVar_2 = 0;
     static Integer globalVar_3 = 0;
     
-    public static void runMethod(CodeIterator i, ConstPool cpl) throws Throwable {
+    public static void runMethod(CodeIterator i, ConstPool cpl) throws Throwable{
 	while(i.hasNext()){
 	    int index = i.next();
 	    int op = i.byteAt(index);
@@ -63,8 +64,7 @@ class ovm{
 		globalVar_3 = dataStack.pop();
 	    }
 	    else if(cod == "getstatic"){
-		int ref = cpl.getFieldrefClass(i.s16bitAt(index+1));		
-		dataStack.push(ref);
+		dataStack.push(cpl.getFieldrefClass(i.s16bitAt(index+1)));
 	    }
 	    else if(cod == "iload_0"){
 		dataStack.push(globalVar_0);
