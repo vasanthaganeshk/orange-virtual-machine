@@ -65,6 +65,11 @@ class ovm{
 	    }
 	    else if(cod == "getstatic"){
 		dataStack.push(cpl.getFieldrefClass(i.s16bitAt(index+1)));
+		Integer tmp = cpl.getFieldrefClass(i.s16bitAt(index+1));
+		System.out.println(tmp);
+		System.out.println(cpl.getClassInfo(tmp));
+		System.out.println(cpl.getNameAndTypeName(tmp+1));
+		System.out.println(cpl.getNameAndTypeDescriptor(tmp+1));
 	    }
 	    else if(cod == "iload_0"){
 		dataStack.push(globalVar_0);
