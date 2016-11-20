@@ -22,9 +22,9 @@ along with orange-virtual-machine.  If not, see <http://www.gnu.org/licenses/>.
 import java.util.stream.*;
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.*;
 import javassist.bytecode.*;
 import javassist.*;
-import org.javatuples.*;
 
 class IllegalClassFile extends Exception{
   public IllegalClassFile(String message){
@@ -35,8 +35,8 @@ class IllegalClassFile extends Exception{
 
 class ovm{
     // static Stack callStack = new Stack();
-    static Stack<Integer> dataStack = new Stack<Integer>();
-    static Stack<Integer> blockStack = new Stack<Integer>();
+    static Stack<Object> dataStack = new Stack<Object>();
+    static Stack<Object> blockStack = new Stack<Object>();
     static Integer globalVar_0 = 0;
     static Integer globalVar_1 = 0;
     static Integer globalVar_2 = 0;
@@ -52,24 +52,24 @@ class ovm{
 		dataStack.push(i.s16bitAt(index+1));
 	    }
 	    else if(cod == "istore_0"){
-		globalVar_0 = dataStack.pop();
+		globalVar_0 = (Integer)dataStack.pop();
 	    }
 	    else if(cod == "istore_1"){
-		globalVar_1 = dataStack.pop();
+		globalVar_1 = (Integer)dataStack.pop();
 	    }
 	    else if(cod == "istore_2"){
-		globalVar_2 = dataStack.pop();
+		globalVar_2 = (Integer)dataStack.pop();
 	    }
 	    else if(cod == "istore_3"){
-		globalVar_3 = dataStack.pop();
+		globalVar_3 = (Integer)dataStack.pop();
 	    }
 	    else if(cod == "getstatic"){
-		dataStack.push(cpl.getFieldrefClass(i.s16bitAt(index+1)));
-		Integer tmp = cpl.getFieldrefClass(i.s16bitAt(index+1));
-		System.out.println(tmp);
-		System.out.println(cpl.getClassInfo(tmp));
-		System.out.println(cpl.getNameAndTypeName(tmp+1));
-		System.out.println(cpl.getNameAndTypeDescriptor(tmp+1));
+		Integer ref = i.s16bitAt(index+1);
+		String path = cpl.getFieldrefClassName(ref);
+		String fieldname = cpl.getFieldrefName(ref);
+		Field st_obj = Class.forName(path).getDeclaredField(fieldname);
+		dataStack.push(st_obj.get(null));
+		
 	    }
 	    else if(cod == "iload_0"){
 		dataStack.push(globalVar_0);
@@ -84,17 +84,24 @@ class ovm{
 		dataStack.push(globalVar_3);
 	    }
 	    else if(cod == "iadd"){
-		dataStack.push(dataStack.pop() + dataStack.pop());
+		dataStack.push((Integer)dataStack.pop() + (Integer)dataStack.pop());
 	    }
 	    else if(cod == "invokevirtual"){
-		System.out.println(cod + " " + i.s16bitAt(index+1));
+		Integer ref = i.s16bitAt(index+1);
+		String path = cpl.getMethodrefClassName(ref);
+		String methodname = cpl.getMethodrefName(ref);
+
+		Object value1 = dataStack.pop();
+		Object value2 = dataStack.pop();
+		Class<?> prs = Class.forName(path);
+		Method m = prs.getDeclaredMethod(methodname, String.class);
+		m.invoke(value2, value1.toString());
 	    }
-	    else if(cod == "return"){
-		System.out.println(cod);
-	    }
-	    else{
+	    
+	    // Very bad to ignore all other bytecodes
+	    /*else{
 		System.out.println("Unhandled Bytecode " + cod);
-	    }
+		}*/
 	}
     }
     
@@ -102,7 +109,7 @@ class ovm{
 	String fname = args[0];
 	BufferedInputStream fin = new BufferedInputStream(new FileInputStream(fname));
 	
-	ClassFile cf = new ClassFile(new DataInputStream(fin));	
+	ClassFile cf = new ClassFile(new DataInputStream(fin));
 	ConstPool cpl = cf.getConstPool();
 	List<MethodInfo> allMethods = cf.getMethods();
 	List<String> mnames = allMethods.stream().map(x -> x.getName()).collect(Collectors.toList());

@@ -5,7 +5,8 @@ __*Work in progress*__
 
 ### TO DO:
 
-+ Write a make file
++ Don't use reflection API, explore java.lang.invoke
++ Don't ignore the rest of the instructions
 
 ### Dependencies:
 
