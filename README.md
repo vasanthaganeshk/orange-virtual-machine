@@ -11,3 +11,7 @@ __*Work in progress*__
 ### Dependencies:
 
 + Javassist
+
+### Status:
+
++ the VM can add two numbers and print it!
