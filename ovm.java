@@ -25,6 +25,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import javassist.bytecode.*;
 import javassist.*;
+import java.lang.*;
 
 class IllegalClassFile extends Exception{
   public IllegalClassFile(String message){
@@ -37,10 +38,14 @@ class ovm{
     // static Stack callStack = new Stack();
     static Stack<Object> dataStack = new Stack<Object>();
     static Stack<Object> blockStack = new Stack<Object>();
-    static Integer globalVar_0 = 0;
-    static Integer globalVar_1 = 0;
-    static Integer globalVar_2 = 0;
-    static Integer globalVar_3 = 0;
+    static Integer iglobalVar_0 = 0;
+    static Integer iglobalVar_1 = 0;
+    static Integer iglobalVar_2 = 0;
+    static Integer iglobalVar_3 = 0;
+    static Object oglobalvar_0;
+    static Object oglobalvar_1;
+    static Object oglobalvar_2;
+    static Object oglobalvar_3;
     
     public static void runMethod(CodeIterator i, ConstPool cpl) throws Throwable{
 	while(i.hasNext()){
@@ -51,17 +56,29 @@ class ovm{
 	    if(cod == "sipush"){
 		dataStack.push(i.s16bitAt(index+1));
 	    }
+	    else if(cod == "astore_0"){
+		oglobalvar_0 = dataStack.pop();
+	    }
+	    else if(cod == "astore_1"){
+		oglobalvar_1 = dataStack.pop();
+	    }
+	    else if(cod == "astore_2"){
+		oglobalvar_2 = dataStack.pop();
+	    }
+	    else if(cod == "astore_3"){
+		oglobalvar_3 = dataStack.pop();
+	    }	    	    
 	    else if(cod == "istore_0"){
-		globalVar_0 = (Integer)dataStack.pop();
+		iglobalVar_0 = (Integer)dataStack.pop();
 	    }
 	    else if(cod == "istore_1"){
-		globalVar_1 = (Integer)dataStack.pop();
+		iglobalVar_1 = (Integer)dataStack.pop();
 	    }
 	    else if(cod == "istore_2"){
-		globalVar_2 = (Integer)dataStack.pop();
+		iglobalVar_2 = (Integer)dataStack.pop();
 	    }
 	    else if(cod == "istore_3"){
-		globalVar_3 = (Integer)dataStack.pop();
+		iglobalVar_3 = (Integer)dataStack.pop();
 	    }
 	    else if(cod == "getstatic"){
 		Integer ref = i.s16bitAt(index+1);
@@ -71,17 +88,29 @@ class ovm{
 		dataStack.push(st_obj.get(null));
 		
 	    }
+	    else if(cod == "aload_0"){
+		dataStack.push(oglobalvar_0);
+	    }
+	    else if(cod == "aload_1"){
+		dataStack.push(oglobalvar_1);
+	    }
+	    else if(cod == "aload_2"){
+		dataStack.push(oglobalvar_2);
+	    }
+	    else if(cod == "aload_3"){
+		dataStack.push(oglobalvar_3);
+	    }	    
 	    else if(cod == "iload_0"){
-		dataStack.push(globalVar_0);
+		dataStack.push(iglobalVar_0);
 	    }
 	    else if(cod == "iload_1"){
-		dataStack.push(globalVar_1);
+		dataStack.push(iglobalVar_1);
 	    }
 	    else if(cod == "iload_2"){
-		dataStack.push(globalVar_2);
+		dataStack.push(iglobalVar_2);
 	    }
 	    else if(cod == "iload_3"){
-		dataStack.push(globalVar_3);
+		dataStack.push(iglobalVar_3);
 	    }
 	    else if(cod == "iadd"){
 		dataStack.push((Integer)dataStack.pop() + (Integer)dataStack.pop());
@@ -95,13 +124,37 @@ class ovm{
 		Object value2 = dataStack.pop();
 		Class<?> prs = Class.forName(path);
 		Method m = prs.getDeclaredMethod(methodname, String.class);
-		m.invoke(value2, value1.toString());
+		dataStack.push(m.invoke(value2, value1.toString()));
 	    }
+	    else if(cod == "invokestatic"){
+		Integer ref = i.s16bitAt(index+1);
+		String path = cpl.getMethodrefClassName(ref);
+		String methodname = cpl.getMethodrefName(ref);
+
+		Object value = dataStack.pop();
+		Class<?> prs = Class.forName(path);
+		Method m = prs.getDeclaredMethod(methodname);
+		dataStack.push(m.invoke(value));
+	    }	    
+	    else if(cod == "ldc"){
+		Integer ref = i.byteAt(index+1);
+		dataStack.push(cpl.getLdcValue(ref));
+	    }
+	    else if(cod == "ldc2_w" || cod == "ldc_w"){
+		Integer ref = i.s16bitAt(index+1);
+		dataStack.push(cpl.getLdcValue(ref));
+	    }
+	    else if(cod == "dadd"){
+		dataStack.push((Double)dataStack.pop() + (Double)dataStack.pop());
+	    }
+	    /*else if(cod == "return"){
+		dataStack.pop();
+		}*/
 	    
 	    // Very bad to ignore all other bytecodes
-	    /*else{
+	    else{
 		System.out.println("Unhandled Bytecode " + cod);
-		}*/
+	    }
 	}
     }
     
